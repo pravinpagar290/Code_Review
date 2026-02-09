@@ -11,7 +11,7 @@ app.use(
   cors({
     origin: allowedOrigin,
     credentials: true,
-  })
+  }),
 );
 
 app.use(express.json());
@@ -31,7 +31,10 @@ app.use((req, res) => {
 // Centralized error handler
 app.use((err, req, res, next) => {
   console.error("Unhandled error in request:", err);
-  res.status(500).send("Internal Server Error");
+  const status = err.status || err.statusCode || 500;
+  const message =
+    err.expose || status < 500 ? err.message : "Internal Server Error";
+  res.status(status).send(message);
 });
 
 module.exports = app;

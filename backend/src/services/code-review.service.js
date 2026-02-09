@@ -1,7 +1,10 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_KEY);
-const model = genAI.getGenerativeModel({
+const apiKey = process.env.GOOGLE_GEMINI_KEY || null;
+let model = null;
+if (apiKey) {
+  const genAI = new GoogleGenerativeAI(apiKey);
+  model = genAI.getGenerativeModel({
     model: "gemini-2.5-flash-lite",
     systemInstruction: `
 Role & Responsibilities: You are an expert code reviewer with 7+ years of development experience. Your goal is to provide quick, high-impact feedback. Focus on identifying key issues and actionable improvements without unnecessary fluff. Prioritize readability, maintainability, and best practices.
@@ -44,17 +47,29 @@ Suggestions
 
 [Suggestion 2]
 
-[Suggestion 3] `
-});
-
-
-async function generateContent(prompt) {
-    const result = await model.generateContent(prompt);
-
-    console.log(result.response.text())
-
-    return result.response.text();
-
+[Suggestion 3] `,
+  });
 }
 
-module.exports = generateContent    
+async function generateContent(prompt) {
+  try {
+    if (!model) {
+      const e = new Error("Missing GOOGLE_GEMINI_KEY environment variable");
+      e.status = 500;
+      throw e;
+    }
+    const result = await model.generateContent(prompt);
+    const text = await result.response.text();
+    console.log(text);
+    return text;
+  } catch (err) {
+    console.error("generateContent error:", err);
+    const message =
+      err.errorDetails?.[0]?.message || err.message || "AI request failed";
+    const e = new Error(message);
+    e.status = err.status || err.statusCode || 500;
+    throw e;
+  }
+}
+
+module.exports = generateContent;

@@ -14,7 +14,9 @@ module.exports.getReview = async (req, res) => {
     res.send(response);
   } catch (err) {
     console.error("getReview error:", err);
-    res.status(500).send("Internal Server Error");
+    const status = err.status || err.statusCode || 500;
+    const message = err.message || "Internal Server Error";
+    res.status(status).send(message);
   }
 };
 
@@ -29,6 +31,8 @@ module.exports.aiNotes = async (req, res) => {
     res.send(response);
   } catch (err) {
     console.error("aiNotes error:", err);
-    res.status(500).send("Internal Server Error");
+    const status = err.status || err.statusCode || 500;
+    const message = err.message || "Internal Server Error";
+    res.status(status).send(message);
   }
 };
