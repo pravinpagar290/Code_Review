@@ -1,6 +1,7 @@
 const express = require("express");
 const aiRoutes = require("./routes/code-review.routes");
 const notesRoutes = require("./routes/notes.routes");
+const resumeRoutes = require("./routes/resume.routes");
 const cors = require("cors");
 
 const app = express();
@@ -22,6 +23,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/ai", aiRoutes);
 app.use("/api/notes", notesRoutes);
+app.use("/api/resume", resumeRoutes);
 
 // 404 handler
 app.use((req, res) => {
